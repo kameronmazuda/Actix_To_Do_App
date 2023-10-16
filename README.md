@@ -1,1 +1,4 @@
-# Actix_To_Do_App
+# ActixWeb ToDo App with React Frontend
+
+### Screenshots
+![Main Page](./without_react.png)
