@@ -1,24 +1,29 @@
 use actix_web::{web, HttpResponse};
-use serde_json::{Value, Map};
+use crate::diesel;
+use diesel::prelude::*;
 
-use crate::state::read_file;
-use crate::to_do::{to_do_factory, enums::TaskStatus};
-use crate::json_ser::{to_do_item::ToDoItem, to_do_items::ToDoItems};
-use crate::processes::process_input;
-use crate::FILE_PATHNAME;
+use crate::database::establish_connection;
+use crate::models::item::item::Item;
+use crate::schema::to_do;
+use crate::json_ser::{
+	to_do_item::ToDoItem, 
+	to_do_items::ToDoItems
+};
+use crate::jwt::JwToken;
 
-pub async fn delete(to_do_item: web::Json<ToDoItem>) -> HttpResponse {
-	let state: Map<String, Value> = read_file(FILE_PATHNAME);
+
+pub async fn delete(to_do_item: web::Json<ToDoItem>, token: JwToken) -> HttpResponse {
+	println!("here's the message in the token: {}", token.message);
 	
-	let status: TaskStatus;	
-	match &state.get(&to_do_item.title) {
-		Some(val) => status = TaskStatus::from_string(val.as_str().unwrap().to_string()),
-		None =>  return HttpResponse::NotFound().json(format!("{} not in state", &to_do_item.title))
-	}
+	let conn = establish_connection();
 	
-	let item = to_do_factory(&to_do_item.title, status.clone()); 
+	let items = to_do::table
+		.filter(to_do::columns::title.eq(&to_do_item.title))
+		.order(to_do::columns::id.asc())
+		.load::<Item>(&conn)
+		.unwrap();
 	
-	process_input(item, "delete", &state);
+	let _ = diesel::delete(&items[0]).execute(&conn);
 	
 	HttpResponse::Ok().json(ToDoItems::get_state())
 }

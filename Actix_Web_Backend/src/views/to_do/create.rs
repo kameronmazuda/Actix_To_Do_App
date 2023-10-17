@@ -1,29 +1,28 @@
-use serde_json::{Value, Map};
-use actix_web::{web, HttpResponse};
-use serde::Deserialize;
+use crate::diesel;
+use diesel::prelude::*;
+use actix_web::{HttpRequest, HttpResponse};
 
-use crate::to_do::{to_do_factory, enums::TaskStatus};
-use crate::state::read_file;
-use crate::processes::process_input;
+use crate::database::establish_connection;
+use crate::models::item::new_item::NewItem;
+use crate::models::item::item::Item;
+use crate::schema::to_do;
 use crate::json_ser::to_do_items::ToDoItems;
 
-use crate::FILE_PATHNAME;
-
-#[derive(Deserialize)]
-pub struct Body {
-	pub title: String,
-}
-
-pub async fn create(body: web::Json<Body>) -> HttpResponse {
-	let state: Map<String, Value> = read_file(FILE_PATHNAME);
+pub async fn create(req: HttpRequest) -> HttpResponse {
+	let title: String = req.match_info().get("title").unwrap().to_string();
 	
-	if let Some(_val) = &state.get(&body.title) {
-		return HttpResponse::NotFound().json(format!("{} already exists.", &body.title));
+	let conn = establish_connection();
+	
+	let items = to_do::table
+		.filter(to_do::columns::title.eq(&title.as_str()))
+		.order(to_do::columns::id.asc())
+		.load::<Item>(&conn)
+		.unwrap();
+
+	if items.len() == 0 {
+		let new_post = NewItem::new(title);
+		let _ = diesel::insert_into(to_do::table).values(&new_post).execute(&conn);
 	}
-
-	let item = to_do_factory(&body.title.as_str(), TaskStatus::PENDING);
-
-	process_input(item, "create", &state);
 
 	HttpResponse::Ok().json(ToDoItems::get_state())
 }

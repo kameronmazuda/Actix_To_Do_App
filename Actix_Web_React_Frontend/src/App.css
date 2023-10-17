@@ -1,38 +1,159 @@
+.header {
+	color: #fff;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+
+	background: #034f84;
+	padding: .3rem;
+	margin-bottom: 0.3rem;
+	border-radius: .1rem;
+	
+	border: 2px white solid;
+}
+
+.tasksNumContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.header span {
+	background-color: #f7786b;
+	border-radius: .1rem;
+	padding: 0 .3rem;
+	color: white;
+	margin-left: .3rem;
+}
+
 .App {
-  text-align: center;
+	background-color: #92a8d1;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.5rem;
+	
+	height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.items {
+	margin-top: 1.5em;	
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.items_title {
+	margin-bottom: .5em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@media(max-width: 500px) {
+	.App  {
+		padding: 1px;
+		display: grid;
+		grid-template-columns: 1fr;
+	}
 }
 
-.App-link {
-  color: #61dafb;
+@media(min-width: 501px) and (max-width: 550px) {
+	.App {
+		padding: 1px;
+		display: grid;
+		grid-template-columns: 1fr 5fr 1fr;
+	}
+	
+	.mainContainer {
+		grid-column-start: 2;
+	}
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@media(min-width: 551px) and (max-width: 1000px) {
+	.App {
+		padding: 1px;
+		display: grid;
+		grid-template-columns: 1fr 3fr 1fr;
+	}
+	
+	.mainContainer {
+		grid-column-start: 2;
+	}
 }
+
+@media(min-width: 1001px){
+	.App {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+ 		
+	}
+	
+	.mainContainer {
+		width: 50%;
+		
+	}
+	
+}
+
+.itemContainer {
+	display:flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: .1rem;
+	background: #034f84;
+	margin-bottom: .2rem;
+	border: 2px white solid;
+}
+
+.itemContainer p {
+	color: white;	
+	padding: .4rem;
+}
+
+.actionButton {
+	background: #f7786b;
+	border: none;
+	outline: none;
+	color: white;
+	width: 5rem;
+	padding: .3rem 0;
+	align-self: stretch;
+	border-left: 2px white solid;
+}
+
+.actionButton:hover {
+	color: white;
+	background: #f7986b;
+	cursor: pointer;
+}
+
+.action-button:hover {
+	background: #f7686b;
+	color: black;
+}
+
+.inputContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	background: #034f84;
+	margin-top: 2rem;
+	border-radius: .1rem;
+}
+
+.inputContainer input {
+	padding: .3rem .5rem;
+	margin: .4rem;
+}
+
+.createButton {
+	width: 5rem;
+	background-color: #fff;
+	padding: .3rem 0;
+	text-align: center;
+	align-self: stretch;
+	border: none;
+	outline: none;
+}
+
+.createButton:hover {
+	background-color: #ddd;
+	cursor: pointer;
+}
+

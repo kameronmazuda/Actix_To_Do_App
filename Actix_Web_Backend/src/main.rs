@@ -1,3 +1,6 @@
+#[macro_use] extern crate diesel;
+extern crate dotenv;
+
 use actix_web::{App, HttpServer};
 use actix_service::Service; 
 use actix_cors::Cors;
@@ -8,6 +11,9 @@ mod state;
 mod processes;
 mod json_ser;
 mod jwt;
+mod schema;
+mod database;
+mod models;
 
 pub const FILE_PATHNAME: &str = "./state.json";
 
@@ -34,34 +40,3 @@ async fn main() -> std::io::Result<()> {
 	.run()
 	.await
 }
-
-/*
-use serde_json::{Map, Value};
-
-use state::read_file;
-use to_do::to_do_factory;
-use to_do::enums::TaskStatus;
-use processes::process_input;
-
-fn main() {
-	let args: Vec<String> = env::args().collect();
-    let command: &String = &args[1];
-    let title: &String = &args[2];
-    
-	let state: Map<String, Value> = read_file(FILE_PATHNAME);
-    let status: String;
-    
-	match &state.get(*&title) {
-        Some(result) => {
-            status = result.to_string().replace('\"', "");
-        }
-        None=> {
-            status = "pending".to_owned();
-        }
-    }
-    let item = to_do_factory(title,
-                             TaskStatus::from_string(
-                             status.to_uppercase()));
-    process_input(item, command, &state);
-}
-*/
