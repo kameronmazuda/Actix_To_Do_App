@@ -6,16 +6,13 @@ use actix_service::Service;
 use actix_cors::Cors;
 
 mod views;
+mod config;
 mod to_do;
-mod state;
-mod processes;
 mod json_ser;
 mod jwt;
 mod schema;
 mod database;
 mod models;
-
-pub const FILE_PATHNAME: &str = "./state.json";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -17,8 +17,7 @@ impl TaskStatus {
         match input_string.as_str() {
             "DONE" => TaskStatus::DONE,
             "PENDING" => TaskStatus::PENDING,
-            _ => panic!("input {} not supported",
-                        input_string)
+            _ => panic!("input {} not supported", input_string)
         }
     }
 }

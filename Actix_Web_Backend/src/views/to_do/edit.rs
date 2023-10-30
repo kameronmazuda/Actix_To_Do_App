@@ -1,5 +1,4 @@
 use actix_web::{web, HttpResponse};
-use crate::diesel;
 use diesel::prelude::*;
 
 use crate::database::establish_connection;
