@@ -2,7 +2,7 @@ use actix_web::{web, HttpResponse};
 use crate::diesel;
 use diesel::prelude::*;
 
-use crate::database::establish_connection;
+use crate::database::DB;
 use crate::models::item::item::Item;
 use crate::schema::to_do;
 use crate::json_ser::{
@@ -12,18 +12,15 @@ use crate::json_ser::{
 use crate::jwt::JwToken;
 
 
-pub async fn delete(to_do_item: web::Json<ToDoItem>, token: JwToken) -> HttpResponse {
-	println!("here's the message in the token: {}", token.message);
-	
-	let conn = establish_connection();
-	
+pub async fn delete(to_do_item: web::Json<ToDoItem>, token: JwToken, db: DB) -> HttpResponse {
 	let items = to_do::table
 		.filter(to_do::columns::title.eq(&to_do_item.title))
+		.filter(to_do::columns::user_id.eq(&token.user_id))
 		.order(to_do::columns::id.asc())
-		.load::<Item>(&conn)
+		.load::<Item>(&db.connection)
 		.unwrap();
 	
-	let _ = diesel::delete(&items[0]).execute(&conn);
+	let _ = diesel::delete(&items[0]).execute(&db.connection);
 	
-	HttpResponse::Ok().json(ToDoItems::get_state())
+	HttpResponse::Ok().json(ToDoItems::get_state(token.user_id))
 }

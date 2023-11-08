@@ -4,9 +4,10 @@ use actix_web::{
 };
 use serde::Serialize;
 use crate::diesel;
+use crate::jwt::JwToken;
 use diesel::prelude::*;
 
-use crate::database::establish_connection;
+use crate::database::{establish_connection, DBCONNECTION};
 use crate::models::item::item::Item;
 use crate::schema::to_do; 
 
@@ -47,14 +48,18 @@ impl ToDoItems {
 		}
 	}
 	
-	pub fn get_state() -> ToDoItems {
-		let connection = establish_connection();
+	pub fn get_state(user_id: i32) -> ToDoItems {
+		
+		let conn = DBCONNECTION.db_connection.get().unwrap();
+		
+		let items = to_do::table
+			.filter(to_do::columns::user_id.eq(&user_id))
+			.order(to_do::columns::id.asc())
+			.load::<Item>(&conn)
+			.unwrap();
+	
 		let mut array_buffer = Vec::new();
 
-		let items = to_do::table
-			.order(to_do::columns::id.asc())
-			.load::<Item>(&connection).unwrap();
-		
 		for item in items {
 			let status = TaskStatus::from_string(item.status.as_str().to_string());
 			let item = to_do_factory(&item.title, status);

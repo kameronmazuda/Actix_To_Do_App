@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use diesel::{r2d2::{Pool, ConnectionManager, PooledConnection}};
+use diesel::r2d2::{Pool, ConnectionManager, PooledConnection};
 use diesel::pg::PgConnection;
 use crate::config::Config;
 use actix_web::dev::Payload;
@@ -37,7 +37,6 @@ impl FromRequest for DB {
     }
 }
 
-
 lazy_static! {
     pub static ref DBCONNECTION: DbConnection = {
         let connection_string = Config::new().map.get("DB_URL").unwrap().as_str().unwrap().to_string(); 
@@ -49,10 +48,3 @@ lazy_static! {
         }
     };
 }
-
-pub fn establish_connection() -> PooledConnection<ConnectionManager<PgConnection>> {
-    return DBCONNECTION.db_connection.get().unwrap();
-}
-
-
-

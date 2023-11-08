@@ -10,14 +10,14 @@ use crate::json_ser::{
 use crate::jwt::JwToken;
 
 pub async fn edit(to_do_item: web::Json<ToDoItem>, token: JwToken, db: DB) -> HttpResponse {
-	println!("here is the message in the token: {}", token.message);
 
 	let items = to_do::table
-		.filter(to_do::columns::title.eq(&to_do_item.title));
+		.filter(to_do::columns::title.eq(&to_do_item.title))
+		.filter(to_do::columns::user_id.eq(&token.user_id));
 
 	let _ = diesel::update(items)
 		.set(to_do::columns::status.eq("DONE"))
 		.execute(&db.connection);	
 	
-	HttpResponse::Ok().json(ToDoItems::get_state())
+	HttpResponse::Ok().json(ToDoItems::get_state(token.user_id))
 }
