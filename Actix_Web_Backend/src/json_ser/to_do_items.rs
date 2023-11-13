@@ -7,7 +7,7 @@ use crate::diesel;
 use crate::jwt::JwToken;
 use diesel::prelude::*;
 
-use crate::database::{establish_connection, DBCONNECTION};
+use crate::database::DBCONNECTION;
 use crate::models::item::item::Item;
 use crate::schema::to_do; 
 

@@ -13,8 +13,7 @@ use crate::config::Config;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JwToken {
     pub user_id: i32,
-    #[serde(with = "ts_seconds")]
-    pub minted: DateTime<Utc>
+    pub exp: i64,
 }
 
 impl JwToken {
@@ -31,17 +30,26 @@ impl JwToken {
     }
 
     pub fn new(user_id: i32) -> Self {
-        let timestamp = Utc::now();
-        Self { user_id, minted: timestamp } 
+        let config = Config::new();
+        let minutes = config.map.get("EXPIRATION_TIME").unwrap().as_i64().unwrap();
+        let expiration = Utc::now().checked_sub_signed(chrono::Duration::minutes(minutes)).expect("valid timespamp").timestamp();
+
+        return Self {
+            user_id,
+            exp: expiration,
+        }
+
     }
 
-    pub fn from_token(token: String) -> Option<Self> {
+    pub fn from_token(token: String) -> Result<Self, String> {
         let key = DecodingKey::from_secret(JwToken::get_key().as_ref());
         let token = decode::<JwToken>(&token, &key, &Validation::new(Algorithm::HS256));
         
         match token {
-            Ok(data) => Some(data.claims),
-            Err(_) => None
+            Ok(data) => Ok(data.claims),
+            Err(error) => {
+                Err(error.to_string())
+            }
         }
 
     }
@@ -58,16 +66,18 @@ impl FromRequest for JwToken {
                 let token = JwToken::from_token(raw_token.to_string());
 
                 match token {
-                    Some(token) => {
-                        ok(token)
-                    }
-                    None => {
-                        err(ErrorUnauthorized("Invalid token".to_string()))
+                    Ok(token) => ok(token),
+                    Err(error) => {
+                        if error == "ExpiredSignature".to_owned() {
+                        err(ErrorUnauthorized("Token expired."))
+                        } else {
+                        err(ErrorUnauthorized("Token can't be decoded."))
+                        }
                     }
                 }
-            }
+            },
 			None => {
-                err(ErrorUnauthorized("No token provided".to_string()))
+                err(ErrorUnauthorized("No token provided in the header".to_string()))
             }
 		}
 	}
