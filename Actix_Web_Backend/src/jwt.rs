@@ -32,7 +32,7 @@ impl JwToken {
     pub fn new(user_id: i32) -> Self {
         let config = Config::new();
         let minutes = config.map.get("EXPIRATION_TIME").unwrap().as_i64().unwrap();
-        let expiration = Utc::now().checked_sub_signed(chrono::Duration::minutes(minutes)).expect("valid timespamp").timestamp();
+        let expiration = Utc::now().checked_add_signed(chrono::Duration::minutes(minutes)).expect("valid timespamp").timestamp();
 
         return Self {
             user_id,
@@ -60,18 +60,19 @@ impl FromRequest for JwToken {
 	type Future = Ready<Result<JwToken, Error>>;
 	
 	fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
+        println!("req.headers: {:?}", req.headers());
 		match req.headers().get("token") {
 			Some(data) => {
                 let raw_token = data.to_str().unwrap();
                 let token = JwToken::from_token(raw_token.to_string());
-
+                println!("{:?}", token);
                 match token {
                     Ok(token) => ok(token),
                     Err(error) => {
                         if error == "ExpiredSignature".to_owned() {
-                        err(ErrorUnauthorized("Token expired."))
+                            err(ErrorUnauthorized("Token expired."))
                         } else {
-                        err(ErrorUnauthorized("Token can't be decoded."))
+                            err(ErrorUnauthorized("Token can't be decoded."))
                         }
                     }
                 }
