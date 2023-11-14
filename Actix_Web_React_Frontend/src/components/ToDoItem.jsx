@@ -1,7 +1,7 @@
 import axios from "axios";
 import {useState} from "react";
 
-function ToDoItem({title, status, passBackResponse}) {
+function ToDoItem({title, status, passBackResponse, logout}) {
 
 	const button = status === "PENDING" ? "edit" : "delete" 
 	const sendRequest = () => {
@@ -14,10 +14,15 @@ function ToDoItem({title, status, passBackResponse}) {
 			{
 				headers: 
 				{
-					"token": "some_token"
+					"token": localStorage.getItem("user-token"),
 				}
 			})
-			.then(res => passBackResponse(res));
+			.then(res => passBackResponse(res))
+			.catch(err => {
+				if (err.response.status === 401) {
+					logout()
+				}
+			});
 	}
 	
 	return (

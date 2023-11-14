@@ -13,7 +13,7 @@ function CreateToDo({passBackResponse}) {
 				{},
 				{
 					headers: {
-						"token": "some_token"
+						"token": localStorage.getItem("user-token"),
 					}
 				}
 				)
@@ -40,7 +40,7 @@ function CreateToDo({passBackResponse}) {
 				id="create-button"
 				onClick={createItem}
 				type="button"	
-				class="createButton"
+				className="createButton"
 			>
 				Create
 			</button>
